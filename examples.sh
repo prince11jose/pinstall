@@ -21,30 +21,33 @@ echo -e "${GREEN}PInstall Usage Examples${NC}"
 echo "======================="
 echo ""
 
-print_example "Install Go 1.24.4 on Ubuntu ARM64" \
+print_example "Simple usage - auto-detects everything" \
+    "./pinstall --app=go --ver=1.24.4"
+
+print_example "Install Node.js - auto-detection" \
+    "./pinstall --app=node --ver=20.10.0"
+
+print_example "Install Python - auto-detection" \
+    "./pinstall --app=python --ver=3.12.0"
+
+print_example "Manual specification (if needed)" \
     "./pinstall --linux --ubuntu --arm64 --app=go --ver=1.24.4"
 
-print_example "Install Node.js 20.10.0 on Amazon Linux 2023 x64" \
-    "./pinstall --linux --amzn2023 --x64 --app=node --ver=20.10.0"
+print_example "Specify only architecture" \
+    "./pinstall --x64 --app=node --ver=20.10.0"
 
-print_example "Install Python 3.12.0 on CentOS x64" \
-    "./pinstall --linux --centos --x64 --app=python --ver=3.12.0"
-
-print_example "Install Docker on Ubuntu x64" \
-    "./pinstall --linux --ubuntu --x64 --app=docker --ver=latest"
-
-print_example "Install Git on Debian x64" \
-    "./pinstall --linux --debian --x64 --app=git --ver=latest"
+print_example "Install Docker - auto-detection" \
+    "./pinstall --app=docker --ver=latest"
 
 echo -e "${GREEN}Remote Installation Examples${NC}"
 echo "============================"
 echo ""
 
-print_example "Remote install Go via curl (Ubuntu)" \
-    "curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --linux --ubuntu --x64 --app=go --ver=1.24.4"
+print_example "Remote install Go - auto-detection" \
+    "curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --app=go --ver=1.24.4"
 
-print_example "Remote install Node.js via curl (Amazon Linux)" \
-    "curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --linux --amzn2023 --arm64 --app=node --ver=20.10.0"
+print_example "Remote install Node.js - auto-detection" \
+    "curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --app=node --ver=20.10.0"
 
 echo -e "${GREEN}Windows PowerShell Examples${NC}"
 echo "=========================="
