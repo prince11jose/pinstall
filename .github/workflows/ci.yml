@@ -21,7 +21,7 @@ jobs:
         
       - name: Lint shell scripts
         run: |
-          shellcheck pinstall install.sh examples.sh test.sh
+          shellcheck pinstall repo-manager install.sh examples.sh test.sh setup.sh
           
       - name: Install shfmt
         run: |
@@ -29,7 +29,7 @@ jobs:
           
       - name: Check formatting
         run: |
-          if ! shfmt -d -i 4 pinstall install.sh examples.sh test.sh; then
+          if ! shfmt -d -i 4 pinstall repo-manager install.sh examples.sh test.sh setup.sh; then
             echo "Shell scripts are not properly formatted"
             echo "Run 'make format' to fix formatting issues"
             exit 1
@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Make scripts executable
-        run: chmod +x pinstall install.sh examples.sh test.sh
+        run: chmod +x pinstall repo-manager install.sh examples.sh test.sh setup.sh
         
       - name: Run test suite
         run: ./test.sh
@@ -55,10 +55,26 @@ jobs:
       - name: Test help functionality
         run: ./pinstall --help
         
+      - name: Test repository system
+        run: |
+          echo "Testing repository functionality..."
+          ./repo-manager update
+          ./repo-manager search go
+          ./repo-manager info go
+          ./repo-manager list | head -10
+        
+      - name: Test integrated search
+        run: |
+          echo "Testing integrated search functionality..."
+          ./pinstall --search=go
+          ./pinstall --info=go
+          ./pinstall --list | head -5
+        
       - name: Test system detection
         run: |
           echo "Testing system auto-detection..."
-          ./pinstall --app=go --ver=1.24.4 --help >/dev/null
+          ./pinstall --app=go --ver=1.24.4 --dry-run
+          ./pinstall --app=node --ver=20.10.0 --dry-run
 
   test-installation:
     name: Test Actual Installations
@@ -73,7 +89,13 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Make scripts executable
-        run: chmod +x pinstall
+        run: chmod +x pinstall repo-manager
+        
+      - name: Test dry-run installations
+        run: |
+          echo "Testing dry-run functionality..."
+          ./pinstall --app=go --ver=1.21.6 --dry-run
+          ./pinstall --app=node --ver=18.19.0 --dry-run
         
       - name: Test Go installation
         if: matrix.app == 'go'
@@ -111,12 +133,13 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Make scripts executable
-        run: chmod +x pinstall
+        run: chmod +x pinstall repo-manager
         
       - name: Test macOS compatibility
         run: |
           ./pinstall --help
-          ./pinstall --mac --arm64 --app=go --ver=1.21.6 --help >/dev/null
+          ./pinstall --search=go
+          ./pinstall --mac --arm64 --app=go --ver=1.21.6 --dry-run
 
   security-scan:
     name: Security Scan
@@ -125,17 +148,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Run Bandit security scan
-        uses: securecodewarrior/github-action-bandit@v1
-        with:
-          args: '-r . -f json -o bandit-report.json'
-          
-      - name: Upload security scan results
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: bandit-report
-          path: bandit-report.json
+      - name: Run ShellCheck security analysis
+        run: |
+          shellcheck -e SC1091 pinstall repo-manager install.sh setup.sh examples.sh test.sh
+          echo "✅ Shell security analysis completed"
 
   build-release:
     name: Build Release Package
@@ -150,7 +166,8 @@ jobs:
       - name: Create release package
         run: |
           mkdir -p release
-          cp pinstall pinstall.ps1 install.sh install.ps1 config.yml README.md release/
+          cp pinstall pinstall.ps1 repo-manager install.sh install.ps1 setup.sh setup.ps1 config.yml README.md LICENSE release/
+          cp -r repositories/ release/
           cd release
           tar -czf ../pinstall-${{ github.ref_name }}.tar.gz .
           zip -r ../pinstall-${{ github.ref_name }}.zip .

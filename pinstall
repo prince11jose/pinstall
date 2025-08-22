@@ -207,6 +207,7 @@ detect_system() {
         if [[ -f /etc/os-release ]]; then
             # Save VERSION before sourcing os-release to avoid overwriting it
             local saved_version="$VERSION"
+            # shellcheck source=/dev/null
             . /etc/os-release
             # Restore VERSION after sourcing
             VERSION="$saved_version"
@@ -262,9 +263,11 @@ update_path() {
     for profile in "${profile_files[@]}"; do
         if [[ -f "$profile" ]]; then
             if ! grep -q "$bin_dir" "$profile"; then
-                echo "" >> "$profile"
-                echo "# Added by pinstall" >> "$profile"
-                echo "export PATH=\"$bin_dir:\$PATH\"" >> "$profile"
+                {
+                    echo ""
+                    echo "# Added by pinstall"
+                    echo "export PATH=\"$bin_dir:\$PATH\""
+                } >> "$profile"
                 print_info "Updated PATH in $profile"
             fi
         fi
@@ -282,9 +285,11 @@ set_env_vars() {
             for profile in "${profile_files[@]}"; do
                 if [[ -f "$profile" ]]; then
                     if ! grep -q "GOROOT" "$profile"; then
-                        echo "export GOROOT=\"$install_path\"" >> "$profile"
-                        echo "export GOPATH=\"\$HOME/go\"" >> "$profile"
-                        echo "export PATH=\"\$GOROOT/bin:\$GOPATH/bin:\$PATH\"" >> "$profile"
+                        {
+                            echo "export GOROOT=\"$install_path\""
+                            echo "export GOPATH=\"\$HOME/go\""
+                            echo "export PATH=\"\$GOROOT/bin:\$GOPATH/bin:\$PATH\""
+                        } >> "$profile"
                         print_info "Set Go environment variables in $profile"
                     fi
                 fi
@@ -294,8 +299,10 @@ set_env_vars() {
             for profile in "${profile_files[@]}"; do
                 if [[ -f "$profile" ]]; then
                     if ! grep -q "NODE_HOME" "$profile"; then
-                        echo "export NODE_HOME=\"$install_path\"" >> "$profile"
-                        echo "export PATH=\"\$NODE_HOME/bin:\$PATH\"" >> "$profile"
+                        {
+                            echo "export NODE_HOME=\"$install_path\""
+                            echo "export PATH=\"\$NODE_HOME/bin:\$PATH\""
+                        } >> "$profile"
                         print_info "Set Node.js environment variables in $profile"
                     fi
                 fi
@@ -305,8 +312,10 @@ set_env_vars() {
             for profile in "${profile_files[@]}"; do
                 if [[ -f "$profile" ]]; then
                     if ! grep -q "PYTHON_HOME" "$profile"; then
-                        echo "export PYTHON_HOME=\"$install_path\"" >> "$profile"
-                        echo "export PATH=\"\$PYTHON_HOME/bin:\$PATH\"" >> "$profile"
+                        {
+                            echo "export PYTHON_HOME=\"$install_path\""
+                            echo "export PATH=\"\$PYTHON_HOME/bin:\$PATH\""
+                        } >> "$profile"
                         print_info "Set Python environment variables in $profile"
                     fi
                 fi

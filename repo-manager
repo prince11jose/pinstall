@@ -113,7 +113,8 @@ search_packages() {
     # TODO: Implement proper YAML parsing
     if grep -qi "$query" "$REPO_CACHE/packages.yml"; then
         # Extract package names that match
-        local packages=$(grep -A 20 -B 2 -i "$query" "$REPO_CACHE/packages.yml" | grep -E "^  [a-z]" | cut -d':' -f1 | tr -d ' ' | sort -u)
+        local packages
+        packages=$(grep -A 20 -B 2 -i "$query" "$REPO_CACHE/packages.yml" | grep -E "^  [a-z]" | cut -d':' -f1 | tr -d ' ' | sort -u)
         
         if [[ -n "$packages" ]]; then
             echo -e "${GREEN}Found packages:${NC}"
@@ -123,7 +124,8 @@ search_packages() {
                 if [[ "$package" =~ ^[a-z] ]]; then
                     echo -e "  ${CYAN}$package${NC}"
                     # Extract description
-                    local desc=$(grep -A 5 "^  $package:" "$REPO_CACHE/packages.yml" | grep "description:" | cut -d'"' -f2)
+                    local desc
+                    desc=$(grep -A 5 "^  $package:" "$REPO_CACHE/packages.yml" | grep "description:" | cut -d'"' -f2)
                     if [[ -n "$desc" ]]; then
                         echo -e "    $desc"
                     fi
@@ -151,19 +153,22 @@ list_packages() {
     echo ""
     
     # Extract package names
-    local packages=$(grep -E "^  [a-z].*:" "$REPO_CACHE/packages.yml" | cut -d':' -f1 | tr -d ' ' | sort)
+    local packages
+    packages=$(grep -E "^  [a-z].*:" "$REPO_CACHE/packages.yml" | cut -d':' -f1 | tr -d ' ' | sort)
     
     for package in $packages; do
         if [[ "$package" =~ ^[a-z] ]]; then
             echo -e "  ${CYAN}$package${NC}"
             # Extract description
-            local desc=$(grep -A 5 "^  $package:" "$REPO_CACHE/packages.yml" | grep "description:" | cut -d'"' -f2)
+            local desc
+            desc=$(grep -A 5 "^  $package:" "$REPO_CACHE/packages.yml" | grep "description:" | cut -d'"' -f2)
             if [[ -n "$desc" ]]; then
                 echo -e "    $desc"
             fi
             
             # Extract latest version
-            local version=$(grep -A 10 "^  $package:" "$REPO_CACHE/packages.yml" | grep "latest_version:" | cut -d'"' -f2)
+            local version
+            version=$(grep -A 10 "^  $package:" "$REPO_CACHE/packages.yml" | grep "latest_version:" | cut -d'"' -f2)
             if [[ -n "$version" ]]; then
                 echo -e "    ${GREEN}Latest version: $version${NC}"
             fi
@@ -195,7 +200,8 @@ show_package_info() {
     echo ""
     
     # Extract package information
-    local section=$(sed -n "/^  $package:/,/^  [a-z]/p" "$REPO_CACHE/packages.yml" | head -n -1)
+    local section
+    section=$(sed -n "/^  $package:/,/^  [a-z]/p" "$REPO_CACHE/packages.yml" | head -n -1)
     
     # Parse and display information
     echo "$section" | while IFS= read -r line; do
@@ -219,7 +225,8 @@ show_package_info() {
     
     # Extract platform information
     echo "$section" | grep -A 20 "platforms:" | grep -E "(linux|darwin|windows):" | while read -r platform; do
-        local os=$(echo "$platform" | cut -d':' -f1 | tr -d ' ')
+        local os
+        os=$(echo "$platform" | cut -d':' -f1 | tr -d ' ')
         echo -e "  ${CYAN}$os${NC}"
     done
     
@@ -233,7 +240,9 @@ show_package_info() {
             in_versions=true
         elif [[ "$line" =~ ^[[:space:]]*- ]]; then
             if [[ "$in_versions" == true ]]; then
-                local version=$(echo "$line" | sed 's/.*- "\(.*\)"/\1/')
+                local version
+                version="${line##*- \"}"
+                version="${version%\"*}"
                 echo -e "  ${YELLOW}$version${NC}"
             fi
         elif [[ "$line" =~ ^[[:space:]]*[a-z] ]] && [[ "$in_versions" == true ]]; then
@@ -325,10 +334,10 @@ list_repos() {
 main() {
     local command=""
     local json_output=false
-    local verbose=false
+    # local verbose=false  # TODO: Implement verbose functionality
     local query=""
     local package=""
-    local repo_url=""
+    # local repo_url=""  # TODO: Implement repo URL functionality
     
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -355,7 +364,7 @@ main() {
             add-repo)
                 command="add-repo"
                 shift
-                repo_url="$1"
+                # repo_url="$1"  # TODO: Implement add-repo functionality
                 shift
                 ;;
             list-repos)
@@ -371,7 +380,7 @@ main() {
                 shift
                 ;;
             --verbose)
-                verbose=true
+                # verbose=true  # TODO: Implement verbose output
                 shift
                 ;;
             --help)
