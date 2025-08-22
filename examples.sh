@@ -41,10 +41,10 @@ echo "============================"
 echo ""
 
 print_example "Remote install Go via curl (Ubuntu)" \
-    "curl -fsSL https://raw.githubusercontent.com/your-username/pinstall/main/install.sh | bash -s -- --linux --ubuntu --x64 --app=go --ver=1.24.4"
+    "curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --linux --ubuntu --x64 --app=go --ver=1.24.4"
 
 print_example "Remote install Node.js via curl (Amazon Linux)" \
-    "curl -fsSL https://raw.githubusercontent.com/your-username/pinstall/main/install.sh | bash -s -- --linux --amzn2023 --arm64 --app=node --ver=20.10.0"
+    "curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --linux --amzn2023 --arm64 --app=node --ver=20.10.0"
 
 echo -e "${GREEN}Windows PowerShell Examples${NC}"
 echo "=========================="
@@ -57,7 +57,7 @@ print_example "Install Node.js on Windows ARM64" \
     ".\pinstall.ps1 -Win -Arm64 -App node -Ver 20.10.0"
 
 print_example "Remote install via PowerShell" \
-    "irm https://raw.githubusercontent.com/your-username/pinstall/main/install.ps1 | iex; pinstall-remote -Win -X64 -App go -Ver 1.24.4"
+    "irm https://raw.githubusercontent.com/prince11jose/pinstall/main/install.ps1 | iex; pinstall-remote -Win -X64 -App go -Ver 1.24.4"
 
 echo -e "${GREEN}Auto-detection Examples${NC}"
 echo "======================="
@@ -70,4 +70,4 @@ print_example "Specify only app and version (auto-detect everything else)" \
     "./pinstall --app=node --ver=20.10.0"
 
 echo ""
-echo -e "${BLUE}Note:${NC} Replace 'your-username' with your actual GitHub username in the remote examples."
+echo -e "${BLUE}Note:${NC} The repository is now available at https://github.com/prince11jose/pinstall"

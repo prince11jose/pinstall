@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default repository URL - update this to your actual repository
-REPO_URL="https://raw.githubusercontent.com/your-username/pinstall/main"
+REPO_URL="https://raw.githubusercontent.com/prince11jose/pinstall/main"
 
 print_info() {
     echo -e "${BLUE}[INFO]${NC} $1"

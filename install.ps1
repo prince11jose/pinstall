@@ -7,7 +7,7 @@ param(
 )
 
 # Default repository URL - update this to your actual repository
-$RepoUrl = "https://raw.githubusercontent.com/your-username/pinstall/main"
+$RepoUrl = "https://raw.githubusercontent.com/prince11jose/pinstall/main"
 
 function Write-Info {
     param([string]$Message)
