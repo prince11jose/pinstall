@@ -45,6 +45,29 @@ chmod +x "$TEMP_DIR/pinstall"
 
 print_info "Executing pinstall with arguments: $*"
 
+# If no OS/arch arguments provided, let pinstall auto-detect
+if [[ $# -eq 0 ]]; then
+    print_error "No arguments provided. Usage: bash install.sh --app=<name> --ver=<version> [other options]"
+fi
+
+# Check if required arguments are present
+has_app=false
+has_ver=false
+for arg in "$@"; do
+    case $arg in
+        --app=*) has_app=true ;;
+        --ver=*) has_ver=true ;;
+    esac
+done
+
+if [[ "$has_app" == false ]]; then
+    print_error "Missing required argument: --app=<name>"
+fi
+
+if [[ "$has_ver" == false ]]; then
+    print_error "Missing required argument: --ver=<version>"
+fi
+
 # Execute the script with all passed arguments
 "$TEMP_DIR/pinstall" "$@"
 

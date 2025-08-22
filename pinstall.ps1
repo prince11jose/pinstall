@@ -56,19 +56,21 @@ PInstall - Cross-Platform Package Installer (Windows)
 
 Usage: .\pinstall.ps1 [OPTIONS]
 
-OPTIONS:
+REQUIRED OPTIONS:
+    -App <name>            Application to install (go, node, python, docker, git)
+    -Ver <version>         Version to install
+
+OPTIONAL OPTIONS (auto-detected if not specified):
     -Win                   Target Windows operating system
     -X64                   x86_64 architecture
     -Arm64                 ARM64 architecture
     -X86                   x86 architecture
-    -App <name>            Application to install (go, node, python, docker, git)
-    -Ver <version>         Version to install
     -Help                  Show this help message
 
 Examples:
-    .\pinstall.ps1 -Win -X64 -App go -Ver 1.24.4
-    .\pinstall.ps1 -Win -Arm64 -App node -Ver 20.10.0
-    .\pinstall.ps1 -Win -X64 -App python -Ver 3.12.0
+    .\pinstall.ps1 -App go -Ver 1.24.4                    # Auto-detect everything
+    .\pinstall.ps1 -App node -Ver 20.10.0 -X64           # Specify only architecture
+    .\pinstall.ps1 -Win -X64 -App go -Ver 1.24.4         # Specify everything manually
 
 Supported Applications:
     - go: Go programming language
@@ -108,14 +110,6 @@ function Parse-Args {
 
 # Function to validate arguments
 function Test-Args {
-    if (-not $script:OS) {
-        Write-Error "Operating system not specified. Use -Win"
-    }
-    
-    if (-not $script:Arch) {
-        Write-Error "Architecture not specified. Use -X64, -Arm64, or -X86"
-    }
-    
     if (-not $script:Application) {
         Write-Error "Application not specified. Use -App <name>"
     }
@@ -127,16 +121,30 @@ function Test-Args {
 
 # Function to detect system if not specified
 function Get-SystemInfo {
+    # Auto-detect OS if not specified
     if (-not $script:OS) {
         $script:OS = "win"
+        Write-Info "Auto-detected OS: Windows"
     }
     
+    # Auto-detect architecture if not specified
     if (-not $script:Arch) {
         switch ($env:PROCESSOR_ARCHITECTURE) {
-            "AMD64" { $script:Arch = "x64" }
-            "ARM64" { $script:Arch = "arm64" }
-            "x86" { $script:Arch = "x86" }
-            default { Write-Error "Unsupported architecture: $env:PROCESSOR_ARCHITECTURE" }
+            "AMD64" { 
+                $script:Arch = "x64"
+                Write-Info "Auto-detected architecture: x64"
+            }
+            "ARM64" { 
+                $script:Arch = "arm64"
+                Write-Info "Auto-detected architecture: arm64"
+            }
+            "x86" { 
+                $script:Arch = "x86"
+                Write-Info "Auto-detected architecture: x86"
+            }
+            default { 
+                Write-Error "Unsupported architecture: $env:PROCESSOR_ARCHITECTURE" 
+            }
         }
     }
 }

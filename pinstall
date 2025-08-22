@@ -47,24 +47,27 @@ PInstall - Cross-Platform Package Installer
 
 Usage: $0 [OPTIONS]
 
-OPTIONS:
-    --linux                 Target Linux operating system
-    --mac                   Target macOS operating system
-    --ubuntu                Ubuntu distribution (requires --linux)
-    --amzn2023             Amazon Linux 2023 (requires --linux)
-    --centos               CentOS distribution (requires --linux)
-    --debian               Debian distribution (requires --linux)
-    --x64                  x86_64 architecture
-    --arm64                ARM64 architecture
-    --x86                  x86 architecture
+REQUIRED OPTIONS:
     --app=<name>           Application to install (go, node, python, docker, git)
     --ver=<version>        Version to install
-    --help                 Show this help message
+
+OPTIONAL OPTIONS (auto-detected if not specified):
+    --linux                Target Linux operating system
+    --mac                  Target macOS operating system
+    --ubuntu               Ubuntu distribution (requires --linux)
+    --amzn2023            Amazon Linux 2023 (requires --linux)
+    --centos              CentOS distribution (requires --linux)
+    --debian              Debian distribution (requires --linux)
+    --x64                 x86_64 architecture
+    --arm64               ARM64 architecture
+    --x86                 x86 architecture
+    --help                Show this help message
 
 Examples:
-    $0 --linux --ubuntu --x64 --app=go --ver=1.24.4
-    $0 --linux --amzn2023 --arm64 --app=node --ver=20.10.0
-    $0 --mac --arm64 --app=python --ver=3.12.0
+    $0 --app=go --ver=1.24.4                                    # Auto-detect everything
+    $0 --app=node --ver=20.10.0 --x64                          # Specify only architecture
+    $0 --linux --ubuntu --x64 --app=go --ver=1.24.4           # Specify everything manually
+    $0 --linux --amzn2023 --arm64 --app=node --ver=20.10.0    # Amazon Linux ARM64
 
 Supported Applications:
     - go: Go programming language
@@ -136,18 +139,6 @@ parse_args() {
 
 # Function to validate arguments
 validate_args() {
-    if [[ -z "$OS" ]]; then
-        print_error "Operating system not specified. Use --linux or --mac"
-    fi
-
-    if [[ "$OS" == "linux" && -z "$DISTRO" ]]; then
-        print_error "Linux distribution not specified. Use --ubuntu, --amzn2023, --centos, or --debian"
-    fi
-
-    if [[ -z "$ARCH" ]]; then
-        print_error "Architecture not specified. Use --x64, --arm64, or --x86"
-    fi
-
     if [[ -z "$APP" ]]; then
         print_error "Application not specified. Use --app=<name>"
     fi
@@ -159,17 +150,25 @@ validate_args() {
 
 # Function to detect system if not specified
 detect_system() {
+    # Auto-detect OS if not specified
     if [[ -z "$OS" ]]; then
         case "$(uname -s)" in
             Linux*)     OS="linux";;
             Darwin*)    OS="mac";;
             *)          print_error "Unsupported operating system: $(uname -s)";;
         esac
+        print_info "Auto-detected OS: $OS"
     fi
 
+    # Auto-detect Linux distribution if not specified
     if [[ "$OS" == "linux" && -z "$DISTRO" ]]; then
         if [[ -f /etc/os-release ]]; then
+            # Save VERSION before sourcing os-release to avoid overwriting it
+            local saved_version="$VERSION"
             . /etc/os-release
+            # Restore VERSION after sourcing
+            VERSION="$saved_version"
+            
             case "$ID" in
                 ubuntu) DISTRO="ubuntu";;
                 amzn) DISTRO="amzn2023";;
@@ -178,16 +177,23 @@ detect_system() {
                 *) print_warning "Unknown distribution: $ID, defaulting to ubuntu"
                    DISTRO="ubuntu";;
             esac
+        else
+            print_warning "Cannot detect distribution, defaulting to ubuntu"
+            DISTRO="ubuntu"
         fi
+        print_info "Auto-detected distribution: $DISTRO"
     fi
 
+    # Auto-detect architecture if not specified
     if [[ -z "$ARCH" ]]; then
         case "$(uname -m)" in
             x86_64) ARCH="x64";;
             aarch64|arm64) ARCH="arm64";;
             i386|i686) ARCH="x86";;
+            armv7l) ARCH="arm";;
             *) print_error "Unsupported architecture: $(uname -m)";;
         esac
+        print_info "Auto-detected architecture: $ARCH"
     fi
 }
 

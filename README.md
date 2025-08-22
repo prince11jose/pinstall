@@ -8,11 +8,14 @@ A universal package installer for various operating systems and architectures.
 No installation needed! Use pinstall directly via curl:
 
 ```bash
-# Linux/macOS - Install any package directly
+# Simple usage - auto-detects OS, distribution, and architecture
+curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --app=go --ver=1.24.4
+
+# Advanced usage - specify OS and architecture manually
 curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --linux --ubuntu --arm64 --app=go --ver=1.24.4
 
-# Windows PowerShell - Install any package directly
-irm https://raw.githubusercontent.com/prince11jose/pinstall/main/install.ps1 | iex
+# Windows PowerShell - auto-detects architecture
+irm https://raw.githubusercontent.com/prince11jose/pinstall/main/install.ps1 | iex -ArgumentList "-App", "go", "-Ver", "1.24.4"
 ```
 
 ### Method 2: Install pinstall locally for repeated use
@@ -43,7 +46,10 @@ chmod +x ~/.local/bin/pinstall
 # Add to PATH (add this to your ~/.bashrc or ~/.zshrc)
 export PATH="$HOME/.local/bin:$PATH"
 
-# Now use it anywhere
+# Now use it anywhere - auto-detection
+pinstall --app=go --ver=1.24.4
+
+# Or specify manually if needed
 pinstall --linux --ubuntu --x64 --app=go --ver=1.24.4
 ```
 
@@ -68,7 +74,10 @@ sudo make install  # Install to /usr/local/bin
 git clone https://github.com/prince11jose/pinstall.git
 cd pinstall
 
-# Use directly
+# Use directly - auto-detection
+./pinstall --app=go --ver=1.24.4
+
+# Or specify manually
 ./pinstall --linux --ubuntu --x64 --app=go --ver=1.24.4
 
 # Or install using make
@@ -81,38 +90,41 @@ sudo make install  # Install to /usr/local/bin
 
 ### Remote Installation (No setup required)
 ```bash
-# Install Go on Ubuntu ARM64
+# Simple usage - auto-detects your system
+curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --app=go --ver=1.24.4
+
+# Install Node.js - auto-detection
+curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --app=node --ver=20.10.0
+
+# Manual specification if needed
 curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --linux --ubuntu --arm64 --app=go --ver=1.24.4
 
-# Install Node.js on Amazon Linux 2023 ARM64
-curl -fsSL https://raw.githubusercontent.com/prince11jose/pinstall/main/install.sh | bash -s -- --linux --amzn2023 --arm64 --app=node --ver=20.10.0
-
-# Install Go on Windows x64
-irm https://raw.githubusercontent.com/prince11jose/pinstall/main/install.ps1 | iex
+# Windows - auto-detects architecture
+irm https://raw.githubusercontent.com/prince11jose/pinstall/main/install.ps1 | iex -ArgumentList "-App", "go", "-Ver", "1.24.4"
 ```
 
 ### Local Installation (After installing pinstall)
 ```bash
-# Install Go
+# Simple usage - auto-detects OS, distribution, and architecture
+pinstall --app=go --ver=1.24.4
+pinstall --app=node --ver=20.10.0
+pinstall --app=python --ver=3.12.0
+pinstall --app=docker --ver=latest
+
+# Manual specification if needed
 pinstall --linux --ubuntu --x64 --app=go --ver=1.24.4
-
-# Install Node.js
-pinstall --linux --ubuntu --x64 --app=node --ver=20.10.0
-
-# Install Python
-pinstall --linux --ubuntu --x64 --app=python --ver=3.12.0
-
-# Install Docker
-pinstall --linux --ubuntu --x64 --app=docker --ver=latest
 ```
 
 ## Supported Parameters
 
+**Required:**
+- `--app=<name>` - Application to install (go, node, python, docker, git)
+- `--ver=<version>` - Version to install
+
+**Optional (auto-detected if not specified):**
 - `--linux` / `--win` / `--mac` - Operating system
 - `--ubuntu` / `--amzn2023` / `--centos` / `--debian` - Linux distribution
 - `--x64` / `--arm64` / `--x86` - Architecture
-- `--app=<name>` - Application to install (go, node, python, docker, etc.)
-- `--ver=<version>` - Version to install
 
 ## Supported Applications
 
