@@ -1,0 +1,206 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  lint:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+        
+      - name: Lint shell scripts
+        run: |
+          shellcheck pinstall install.sh examples.sh test.sh
+          
+      - name: Install shfmt
+        run: |
+          GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt@latest
+          
+      - name: Check formatting
+        run: |
+          if ! shfmt -d -i 4 pinstall install.sh examples.sh test.sh; then
+            echo "Shell scripts are not properly formatted"
+            echo "Run 'make format' to fix formatting issues"
+            exit 1
+          fi
+
+  test:
+    name: Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04, ubuntu-22.04]
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Make scripts executable
+        run: chmod +x pinstall install.sh examples.sh test.sh
+        
+      - name: Run test suite
+        run: ./test.sh
+        
+      - name: Test help functionality
+        run: ./pinstall --help
+        
+      - name: Test system detection
+        run: |
+          echo "Testing system auto-detection..."
+          ./pinstall --app=go --ver=1.24.4 --help >/dev/null
+
+  test-installation:
+    name: Test Actual Installations
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        app: [go, node]
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Make scripts executable
+        run: chmod +x pinstall
+        
+      - name: Test Go installation
+        if: matrix.app == 'go'
+        run: |
+          ./pinstall --linux --ubuntu --x64 --app=go --ver=1.21.6
+          go version
+          
+      - name: Test Node.js installation
+        if: matrix.app == 'node'
+        run: |
+          ./pinstall --linux --ubuntu --x64 --app=node --ver=18.19.0
+          node --version
+          npm --version
+
+  test-windows:
+    name: Test Windows PowerShell
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Test PowerShell script syntax
+        run: |
+          powershell -Command "& { . .\pinstall.ps1 -Help }"
+          
+      - name: Test PowerShell script help
+        run: |
+          powershell -Command "& { . .\pinstall.ps1 -Help }"
+
+  test-macos:
+    name: Test macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Make scripts executable
+        run: chmod +x pinstall
+        
+      - name: Test macOS compatibility
+        run: |
+          ./pinstall --help
+          ./pinstall --mac --arm64 --app=go --ver=1.21.6 --help >/dev/null
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run Bandit security scan
+        uses: securecodewarrior/github-action-bandit@v1
+        with:
+          args: '-r . -f json -o bandit-report.json'
+          
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: bandit-report
+          path: bandit-report.json
+
+  build-release:
+    name: Build Release Package
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    needs: [lint, test, test-installation, test-windows, test-macos]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Create release package
+        run: |
+          mkdir -p release
+          cp pinstall pinstall.ps1 install.sh install.ps1 config.yml README.md release/
+          cd release
+          tar -czf ../pinstall-${{ github.ref_name }}.tar.gz .
+          zip -r ../pinstall-${{ github.ref_name }}.zip .
+          
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./pinstall-${{ github.ref_name }}.tar.gz
+          asset_name: pinstall-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+          
+      - name: Upload release ZIP
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./pinstall-${{ github.ref_name }}.zip
+          asset_name: pinstall-${{ github.ref_name }}.zip
+          asset_content_type: application/zip
+
+  deploy-docs:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [lint, test]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v3
+        
+      - name: Build documentation
+        run: |
+          mkdir -p docs
+          cp README.md docs/index.md
+          cp examples.sh docs/
+          echo "# PInstall Documentation" > docs/README.md
+          echo "" >> docs/README.md
+          cat README.md >> docs/README.md
+          
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: docs/
+          
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2

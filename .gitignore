@@ -1,0 +1,225 @@
+# PInstall .gitignore
+# Ignore temporary files, build artifacts, and sensitive data
+
+# Temporary installation files
+/tmp/
+*.tmp
+*.temp
+temp/
+.tmp/
+
+# PInstall specific temporary directories
+pinstall-*
+/release/
+/.cache/
+**/pinstall-cache/
+
+# Downloaded packages and archives
+*.tar.gz
+*.tar.xz
+*.zip
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm
+*.pkg
+
+# Installation directories (when testing locally)
+.local/
+local/
+install/
+installed/
+
+# Log files
+*.log
+logs/
+*.out
+*.err
+
+# Environment and configuration files with secrets
+.env
+.env.local
+.env.*.local
+config.local.*
+secrets.*
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*~
+*.orig
+
+# Test artifacts
+test-results/
+coverage/
+*.coverage
+.nyc_output/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.o
+*.a
+*.so
+*.dll
+*.dylib
+
+# Package manager files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+
+# Ruby
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+
+# Rust
+target/
+Cargo.lock
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Security and sensitive files
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+known_hosts
+authorized_keys
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Documentation build
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Compressed files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Local development
+.vagrant/
+*.box
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Cloud provider credentials
+.aws/
+.azure/
+.gcloud/
+
+# Local testing and development
+test-installs/
+local-test/
+sandbox/
+
+# Version control
+.git/
+.svn/
+.hg/
+.bzr/
+
+# Archives of downloaded software
+archives/
+downloads/
+
+# User-specific files
+.user
+*.user
+.personal
+
+# Compiled binary
+pinstall-compiled
+pinstall.bin
