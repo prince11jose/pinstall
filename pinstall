@@ -51,7 +51,13 @@ REQUIRED OPTIONS:
     --app=<name>           Application to install (go, node, python, docker, git)
     --ver=<version>        Version to install
 
+SEARCH AND INFO OPTIONS:
+    --search=<query>       Search for available packages
+    --info=<package>       Show detailed package information
+    --list                 List all available packages
+
 OPTIONAL OPTIONS (auto-detected if not specified):
+    --dry-run             Show what would be done without executing
     --linux                Target Linux operating system
     --mac                  Target macOS operating system
     --ubuntu               Ubuntu distribution (requires --linux)
@@ -66,6 +72,9 @@ OPTIONAL OPTIONS (auto-detected if not specified):
 Examples:
     $0 --app=go --ver=1.24.4                                    # Auto-detect everything
     $0 --app=node --ver=20.10.0 --x64                          # Specify only architecture
+    $0 --search=python                                          # Search for packages
+    $0 --info=go                                                # Show package info
+    $0 --list                                                   # List all packages
     $0 --linux --ubuntu --x64 --app=go --ver=1.24.4           # Specify everything manually
     $0 --linux --amzn2023 --arm64 --app=node --ver=20.10.0    # Amazon Linux ARM64
 
@@ -82,6 +91,22 @@ EOF
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case $1 in
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --search=*)
+                SEARCH_TERM="${1#*=}"
+                shift
+                ;;
+            --info=*)
+                INFO_PACKAGE="${1#*=}"
+                shift
+                ;;
+            --list)
+                LIST_PACKAGES=true
+                shift
+                ;;
             --linux)
                 OS="linux"
                 shift
@@ -139,6 +164,23 @@ parse_args() {
 
 # Function to validate arguments
 validate_args() {
+    # Handle search/info/list commands first
+    if [[ -n "$SEARCH_TERM" ]]; then
+        ./repo-manager search "$SEARCH_TERM"
+        exit 0
+    fi
+    
+    if [[ -n "$INFO_PACKAGE" ]]; then
+        ./repo-manager info "$INFO_PACKAGE"
+        exit 0
+    fi
+    
+    if [[ "$LIST_PACKAGES" == true ]]; then
+        ./repo-manager list
+        exit 0
+    fi
+    
+    # Validate installation arguments
     if [[ -z "$APP" ]]; then
         print_error "Application not specified. Use --app=<name>"
     fi
@@ -295,6 +337,16 @@ install_go() {
     download_url="https://golang.org/dl/${filename}"
     install_path="$INSTALL_DIR/go-${version}"
     
+    if [[ "$DRY_RUN" == true ]]; then
+        print_info "[DRY RUN] Would download Go ${version} for ${os_name}-${arch_name}"
+        print_info "[DRY RUN] Would download from: $download_url"
+        print_info "[DRY RUN] Would install to: $install_path"
+        print_info "[DRY RUN] Would create symlinks in $INSTALL_DIR/bin"
+        print_info "[DRY RUN] Would set environment variables"
+        print_success "[DRY RUN] Go ${version} installation simulated"
+        return
+    fi
+    
     print_info "Downloading Go ${version} for ${os_name}-${arch_name}"
     curl -fsSL "$download_url" -o "$TEMP_DIR/$filename"
     
@@ -333,6 +385,16 @@ install_node() {
     download_url="https://nodejs.org/dist/v${version}/${filename}"
     install_path="$INSTALL_DIR/node-${version}"
     
+    if [[ "$DRY_RUN" == true ]]; then
+        print_info "[DRY RUN] Would download Node.js ${version} for ${os_name}-${arch_name}"
+        print_info "[DRY RUN] Would download from: $download_url"
+        print_info "[DRY RUN] Would install to: $install_path"
+        print_info "[DRY RUN] Would create symlinks in $INSTALL_DIR/bin"
+        print_info "[DRY RUN] Would set environment variables"
+        print_success "[DRY RUN] Node.js ${version} installation simulated"
+        return
+    fi
+    
     print_info "Downloading Node.js ${version} for ${os_name}-${arch_name}"
     curl -fsSL "$download_url" -o "$TEMP_DIR/$filename"
     
@@ -353,6 +415,27 @@ install_node() {
 # Function to install Python
 install_python() {
     print_info "Installing Python ${VERSION}"
+    
+    if [[ "$DRY_RUN" == true ]]; then
+        print_info "[DRY RUN] Would install Python ${VERSION} for distribution: $DISTRO"
+        case "$DISTRO" in
+            ubuntu|debian)
+                print_info "[DRY RUN] Would run: sudo apt update"
+                print_info "[DRY RUN] Would run: sudo apt install -y software-properties-common"
+                print_info "[DRY RUN] Would run: sudo add-apt-repository -y ppa:deadsnakes/ppa"
+                print_info "[DRY RUN] Would run: sudo apt install -y python${VERSION} python${VERSION}-pip python${VERSION}-venv"
+                ;;
+            amzn2023|centos)
+                print_info "[DRY RUN] Would run: sudo yum update -y"
+                print_info "[DRY RUN] Would run: sudo yum install -y python${VERSION} python${VERSION}-pip"
+                ;;
+            *)
+                print_error "Python installation not supported for distribution: $DISTRO"
+                ;;
+        esac
+        print_success "[DRY RUN] Python ${VERSION} installation simulated"
+        return
+    fi
     
     case "$DISTRO" in
         ubuntu|debian)
@@ -377,6 +460,39 @@ install_python() {
 # Function to install Docker
 install_docker() {
     print_info "Installing Docker"
+    
+    if [[ "$DRY_RUN" == true ]]; then
+        print_info "[DRY RUN] Would install Docker for distribution: $DISTRO"
+        case "$DISTRO" in
+            ubuntu)
+                print_info "[DRY RUN] Would run: sudo apt update"
+                print_info "[DRY RUN] Would install prerequisites and Docker GPG key"
+                print_info "[DRY RUN] Would add Docker repository"
+                print_info "[DRY RUN] Would install Docker CE packages"
+                ;;
+            amzn2023)
+                print_info "[DRY RUN] Would run: sudo yum update -y"
+                print_info "[DRY RUN] Would run: sudo yum install -y docker"
+                ;;
+            centos)
+                print_info "[DRY RUN] Would install yum-utils and Docker repository"
+                print_info "[DRY RUN] Would install Docker CE packages"
+                ;;
+            debian)
+                print_info "[DRY RUN] Would run: sudo apt update"
+                print_info "[DRY RUN] Would install prerequisites and Docker GPG key"
+                print_info "[DRY RUN] Would add Docker repository"
+                print_info "[DRY RUN] Would install Docker CE packages"
+                ;;
+            *)
+                print_error "Docker installation not supported for distribution: $DISTRO"
+                ;;
+        esac
+        print_info "[DRY RUN] Would start and enable Docker service"
+        print_info "[DRY RUN] Would add user to docker group"
+        print_success "[DRY RUN] Docker installation simulated"
+        return
+    fi
     
     case "$DISTRO" in
         ubuntu)
@@ -420,6 +536,25 @@ install_docker() {
 # Function to install Git
 install_git() {
     print_info "Installing Git"
+    
+    if [[ "$DRY_RUN" == true ]]; then
+        print_info "[DRY RUN] Would install Git for distribution: $DISTRO"
+        case "$DISTRO" in
+            ubuntu|debian)
+                print_info "[DRY RUN] Would run: sudo apt update"
+                print_info "[DRY RUN] Would run: sudo apt install -y git"
+                ;;
+            amzn2023|centos)
+                print_info "[DRY RUN] Would run: sudo yum update -y"
+                print_info "[DRY RUN] Would run: sudo yum install -y git"
+                ;;
+            *)
+                print_error "Git installation not supported for distribution: $DISTRO"
+                ;;
+        esac
+        print_success "[DRY RUN] Git installation simulated"
+        return
+    fi
     
     case "$DISTRO" in
         ubuntu|debian)

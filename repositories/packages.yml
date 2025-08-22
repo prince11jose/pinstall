@@ -1,0 +1,373 @@
+# PInstall Repository Configuration
+# This file defines package repositories and their metadata
+# Format: YAML for easy parsing and human readability
+
+version: "1.0"
+last_updated: "2025-08-22"
+
+# Repository metadata
+repositories:
+  official:
+    name: "PInstall Official Repository"
+    description: "Official curated packages for PInstall"
+    url: "https://raw.githubusercontent.com/prince11jose/pinstall/main/repositories"
+    priority: 1
+    enabled: true
+    
+  community:
+    name: "PInstall Community Repository"
+    description: "Community contributed packages"
+    url: "https://raw.githubusercontent.com/pinstall-community/packages/main"
+    priority: 2
+    enabled: true
+    
+  experimental:
+    name: "PInstall Experimental Repository"
+    description: "Experimental and beta packages"
+    url: "https://raw.githubusercontent.com/prince11jose/pinstall-experimental/main"
+    priority: 3
+    enabled: false
+
+# Package definitions
+packages:
+  go:
+    name: "Go Programming Language"
+    description: "Open source programming language that makes it easy to build simple, reliable, and efficient software"
+    homepage: "https://golang.org"
+    license: "BSD-3-Clause"
+    category: "development"
+    tags: ["programming", "language", "compiler", "google"]
+    
+    # Version information
+    latest_version: "1.24.4"
+    lts_version: "1.22.11"
+    versions:
+      - "1.24.4"
+      - "1.24.3"
+      - "1.23.8"
+      - "1.23.7"
+      - "1.22.11"
+      - "1.22.10"
+      - "1.21.13"
+    
+    # Platform support matrix
+    platforms:
+      linux:
+        architectures: ["x64", "arm64", "x86"]
+        distributions: ["ubuntu", "debian", "centos", "amzn2023", "alpine"]
+      darwin:
+        architectures: ["x64", "arm64"]
+      windows:
+        architectures: ["x64", "arm64", "x86"]
+    
+    # Download patterns
+    download_urls:
+      linux:
+        x64: "https://golang.org/dl/go{version}.linux-amd64.tar.gz"
+        arm64: "https://golang.org/dl/go{version}.linux-arm64.tar.gz"
+        x86: "https://golang.org/dl/go{version}.linux-386.tar.gz"
+      darwin:
+        x64: "https://golang.org/dl/go{version}.darwin-amd64.tar.gz"
+        arm64: "https://golang.org/dl/go{version}.darwin-arm64.tar.gz"
+      windows:
+        x64: "https://golang.org/dl/go{version}.windows-amd64.zip"
+        arm64: "https://golang.org/dl/go{version}.windows-arm64.zip"
+        x86: "https://golang.org/dl/go{version}.windows-386.zip"
+    
+    # Installation configuration
+    install:
+      extract_to: "{install_dir}/{package}-{version}"
+      symlink_current: "{install_dir}/{package}"
+      binaries:
+        - src: "bin/go"
+          dest: "bin/go"
+        - src: "bin/gofmt"
+          dest: "bin/gofmt"
+      
+      environment:
+        GOROOT: "{install_path}"
+        GOPATH: "{home}/go"
+        PATH: "{install_path}/bin:{home}/go/bin"
+    
+    # Verification
+    verification:
+      method: "checksum"
+      checksums_url: "https://golang.org/dl/"
+      signature_verification: false
+    
+    # Dependencies
+    dependencies:
+      build: []
+      runtime: []
+
+  node:
+    name: "Node.js"
+    description: "JavaScript runtime built on Chrome's V8 JavaScript engine"
+    homepage: "https://nodejs.org"
+    license: "MIT"
+    category: "development"
+    tags: ["javascript", "runtime", "npm", "v8"]
+    
+    latest_version: "20.10.0"
+    lts_version: "20.10.0"
+    versions:
+      - "20.10.0"
+      - "20.9.0"
+      - "18.19.0"
+      - "18.18.2"
+      - "16.20.2"
+    
+    platforms:
+      linux:
+        architectures: ["x64", "arm64", "x86"]
+        distributions: ["ubuntu", "debian", "centos", "amzn2023", "alpine"]
+      darwin:
+        architectures: ["x64", "arm64"]
+      windows:
+        architectures: ["x64", "arm64", "x86"]
+    
+    download_urls:
+      linux:
+        x64: "https://nodejs.org/dist/v{version}/node-v{version}-linux-x64.tar.xz"
+        arm64: "https://nodejs.org/dist/v{version}/node-v{version}-linux-arm64.tar.xz"
+        x86: "https://nodejs.org/dist/v{version}/node-v{version}-linux-x86.tar.xz"
+      darwin:
+        x64: "https://nodejs.org/dist/v{version}/node-v{version}-darwin-x64.tar.gz"
+        arm64: "https://nodejs.org/dist/v{version}/node-v{version}-darwin-arm64.tar.gz"
+      windows:
+        x64: "https://nodejs.org/dist/v{version}/node-v{version}-win-x64.zip"
+        arm64: "https://nodejs.org/dist/v{version}/node-v{version}-win-arm64.zip"
+        x86: "https://nodejs.org/dist/v{version}/node-v{version}-win-x86.zip"
+    
+    install:
+      extract_to: "{install_dir}/{package}-{version}"
+      symlink_current: "{install_dir}/{package}"
+      binaries:
+        - src: "bin/node"
+          dest: "bin/node"
+        - src: "bin/npm"
+          dest: "bin/npm"
+        - src: "bin/npx"
+          dest: "bin/npx"
+      
+      environment:
+        NODE_HOME: "{install_path}"
+        PATH: "{install_path}/bin"
+    
+    verification:
+      method: "checksum"
+      checksums_url: "https://nodejs.org/dist/v{version}/SHASUMS256.txt"
+      signature_verification: true
+      signature_url: "https://nodejs.org/dist/v{version}/SHASUMS256.txt.sig"
+
+  python:
+    name: "Python"
+    description: "High-level programming language for general-purpose programming"
+    homepage: "https://python.org"
+    license: "PSF"
+    category: "development"
+    tags: ["programming", "language", "interpreter", "scripting"]
+    
+    latest_version: "3.12.1"
+    lts_version: "3.11.7"
+    versions:
+      - "3.12.1"
+      - "3.12.0"
+      - "3.11.7"
+      - "3.11.6"
+      - "3.10.13"
+      - "3.9.18"
+    
+    platforms:
+      linux:
+        architectures: ["x64", "arm64"]
+        distributions: ["ubuntu", "debian", "centos", "amzn2023"]
+        install_method: "package_manager"
+      darwin:
+        architectures: ["x64", "arm64"]
+        install_method: "homebrew"
+      windows:
+        architectures: ["x64", "x86"]
+        install_method: "direct_download"
+    
+    download_urls:
+      windows:
+        x64: "https://www.python.org/ftp/python/{version}/python-{version}-amd64.exe"
+        x86: "https://www.python.org/ftp/python/{version}/python-{version}.exe"
+    
+    install:
+      package_manager:
+        ubuntu: "sudo apt update && sudo apt install -y python{major_minor} python{major_minor}-pip python{major_minor}-venv"
+        debian: "sudo apt update && sudo apt install -y python{major_minor} python{major_minor}-pip python{major_minor}-venv"
+        centos: "sudo yum install -y python{major_minor} python{major_minor}-pip"
+        amzn2023: "sudo yum install -y python{major_minor} python{major_minor}-pip"
+      
+      environment:
+        PYTHON_HOME: "{install_path}"
+        PATH: "{install_path}:{install_path}/Scripts"
+
+  docker:
+    name: "Docker"
+    description: "Platform for developing, shipping, and running applications in containers"
+    homepage: "https://docker.com"
+    license: "Apache-2.0"
+    category: "containerization"
+    tags: ["container", "virtualization", "deployment", "devops"]
+    
+    latest_version: "24.0.7"
+    lts_version: "24.0.7"
+    versions:
+      - "24.0.7"
+      - "24.0.6"
+      - "23.0.6"
+    
+    platforms:
+      linux:
+        architectures: ["x64", "arm64"]
+        distributions: ["ubuntu", "debian", "centos", "amzn2023"]
+        install_method: "package_manager"
+      darwin:
+        architectures: ["x64", "arm64"]
+        install_method: "direct_download"
+      windows:
+        architectures: ["x64"]
+        install_method: "direct_download"
+    
+    download_urls:
+      darwin:
+        x64: "https://desktop.docker.com/mac/main/amd64/Docker.dmg"
+        arm64: "https://desktop.docker.com/mac/main/arm64/Docker.dmg"
+      windows:
+        x64: "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe"
+    
+    install:
+      package_manager:
+        ubuntu: |
+          sudo apt update
+          sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt update
+          sudo apt install -y docker-ce docker-ce-cli containerd.io
+        amzn2023: "sudo yum update -y && sudo yum install -y docker"
+      
+      post_install:
+        - "sudo systemctl start docker"
+        - "sudo systemctl enable docker"
+        - "sudo usermod -aG docker $USER"
+
+  kubectl:
+    name: "Kubernetes kubectl"
+    description: "Command-line tool for controlling Kubernetes clusters"
+    homepage: "https://kubernetes.io"
+    license: "Apache-2.0"
+    category: "devops"
+    tags: ["kubernetes", "k8s", "orchestration", "containers"]
+    
+    latest_version: "1.29.0"
+    lts_version: "1.28.5"
+    versions:
+      - "1.29.0"
+      - "1.28.5"
+      - "1.27.9"
+      - "1.26.12"
+    
+    platforms:
+      linux:
+        architectures: ["x64", "arm64"]
+        distributions: ["ubuntu", "debian", "centos", "amzn2023", "alpine"]
+      darwin:
+        architectures: ["x64", "arm64"]
+      windows:
+        architectures: ["x64"]
+    
+    download_urls:
+      linux:
+        x64: "https://dl.k8s.io/release/v{version}/bin/linux/amd64/kubectl"
+        arm64: "https://dl.k8s.io/release/v{version}/bin/linux/arm64/kubectl"
+      darwin:
+        x64: "https://dl.k8s.io/release/v{version}/bin/darwin/amd64/kubectl"
+        arm64: "https://dl.k8s.io/release/v{version}/bin/darwin/arm64/kubectl"
+      windows:
+        x64: "https://dl.k8s.io/release/v{version}/bin/windows/amd64/kubectl.exe"
+    
+    install:
+      extract_to: "{install_dir}/bin"
+      binaries:
+        - src: "kubectl"
+          dest: "bin/kubectl"
+          permissions: "755"
+    
+    verification:
+      method: "checksum"
+      checksums_url: "https://dl.k8s.io/release/v{version}/bin/{os}/{arch}/kubectl.sha256"
+
+  terraform:
+    name: "Terraform"
+    description: "Infrastructure as Code tool for building, changing, and versioning infrastructure"
+    homepage: "https://terraform.io"
+    license: "MPL-2.0"
+    category: "infrastructure"
+    tags: ["iac", "infrastructure", "cloud", "automation"]
+    
+    latest_version: "1.6.6"
+    lts_version: "1.5.7"
+    versions:
+      - "1.6.6"
+      - "1.6.5"
+      - "1.5.7"
+      - "1.4.7"
+    
+    platforms:
+      linux:
+        architectures: ["x64", "arm64"]
+        distributions: ["ubuntu", "debian", "centos", "amzn2023", "alpine"]
+      darwin:
+        architectures: ["x64", "arm64"]
+      windows:
+        architectures: ["x64"]
+    
+    download_urls:
+      linux:
+        x64: "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_linux_amd64.zip"
+        arm64: "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_linux_arm64.zip"
+      darwin:
+        x64: "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_darwin_amd64.zip"
+        arm64: "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_darwin_arm64.zip"
+      windows:
+        x64: "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_windows_amd64.zip"
+    
+    install:
+      extract_to: "{install_dir}/bin"
+      binaries:
+        - src: "terraform"
+          dest: "bin/terraform"
+          permissions: "755"
+    
+    verification:
+      method: "checksum"
+      checksums_url: "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_SHA256SUMS"
+      signature_verification: true
+      signature_url: "https://releases.hashicorp.com/terraform/{version}/terraform_{version}_SHA256SUMS.sig"
+
+# Categories for organization
+categories:
+  development:
+    name: "Development Tools"
+    description: "Programming languages, compilers, and development environments"
+    packages: ["go", "node", "python"]
+  
+  containerization:
+    name: "Containerization"
+    description: "Container platforms and tools"
+    packages: ["docker"]
+  
+  devops:
+    name: "DevOps Tools"
+    description: "Tools for deployment, orchestration, and automation"
+    packages: ["kubectl", "terraform"]
+  
+  infrastructure:
+    name: "Infrastructure Tools"
+    description: "Infrastructure as Code and cloud management tools"
+    packages: ["terraform"]

@@ -1,0 +1,103 @@
+# External Repository Sources
+# This file maps external package repositories to pinstall format
+
+sources:
+  # Homebrew packages (macOS)
+  homebrew:
+    url: "https://formulae.brew.sh/api/formula.json"
+    format: "homebrew"
+    enabled: true
+    auto_sync: false
+    
+  # Chocolatey packages (Windows)
+  chocolatey:
+    url: "https://community.chocolatey.org/api/v2/Search"
+    format: "chocolatey"
+    enabled: true
+    auto_sync: false
+    
+  # APT packages (Debian/Ubuntu)
+  apt:
+    urls:
+      - "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-amd64/Packages.gz"
+      - "http://archive.ubuntu.com/ubuntu/dists/jammy/universe/binary-amd64/Packages.gz"
+    format: "debian"
+    enabled: false
+    auto_sync: false
+    
+  # YUM packages (RHEL/CentOS)
+  yum:
+    urls:
+      - "http://mirror.centos.org/centos/7/os/x86_64/repodata/"
+    format: "rpm"
+    enabled: false
+    auto_sync: false
+    
+  # GitHub Releases
+  github_releases:
+    repositories:
+      - "hashicorp/terraform"
+      - "kubernetes/kubernetes"
+      - "docker/cli"
+      - "golang/go"
+      - "nodejs/node"
+      - "helm/helm"
+      - "docker/compose"
+      - "prometheus/prometheus"
+      - "grafana/grafana"
+      - "elastic/elasticsearch"
+      - "redis/redis"
+      - "postgres/postgres"
+    format: "github"
+    enabled: true
+    auto_sync: true
+    
+  # NPM packages (Node.js ecosystem)
+  npm:
+    url: "https://registry.npmjs.org"
+    format: "npm"
+    enabled: false
+    auto_sync: false
+    
+  # PyPI packages (Python ecosystem)
+  pypi:
+    url: "https://pypi.org/simple"
+    format: "pypi"
+    enabled: false
+    auto_sync: false
+    
+  # Go modules
+  go_modules:
+    url: "https://proxy.golang.org"
+    format: "gomod"
+    enabled: false
+    auto_sync: false
+
+# Package mapping rules
+mapping_rules:
+  # Map common package names to their canonical names
+  aliases:
+    nodejs: "node"
+    docker-ce: "docker"
+    kubectl: "kubernetes-cli"
+    k8s: "kubectl"
+    golang: "go"
+    py: "python"
+    tf: "terraform"
+    
+  # Priority order for package resolution
+  priority:
+    - "official"
+    - "github_releases"
+    - "homebrew"
+    - "chocolatey"
+    - "community"
+    - "experimental"
+
+# Update schedules
+update_schedule:
+  official: "daily"
+  github_releases: "hourly"
+  homebrew: "weekly"
+  chocolatey: "weekly"
+  community: "daily"
